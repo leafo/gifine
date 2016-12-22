@@ -45,22 +45,31 @@ window = Gtk.Window {
       expand: true
     }
 
-    Gtk.HScrollbar {
-      id: "image_scroller"
+    Gtk.HBox {
+      Gtk.HScrollbar {
+        id: "image_scroller"
+        expand: true
 
-      on_value_changed: =>
-        value = @adjustment.value
-        value = math.floor value + 0.5
-        return unless loaded_frames
-        frame = loaded_frames[value]
-        window.child.current_image.file = frame
+        on_value_changed: =>
+          value = @adjustment.value
+          value = math.floor value + 0.5
+          return unless loaded_frames
+          frame = loaded_frames[value]
+          window.child.current_image.file = frame
+          window.child.current_frame_label.label = "#{value}"
 
-      adjustment: Gtk.Adjustment {
-        lower: 0
-        upper: 100
-        value: 50
-        page_size: 1
-        step_increment: 1
+        adjustment: Gtk.Adjustment {
+          lower: 0
+          upper: 100
+          value: 50
+          page_size: 1
+          step_increment: 1
+        }
+      }
+
+      Gtk.Label {
+        id: "current_frame_label"
+        label: "Standby"
       }
     }
 
