@@ -2,7 +2,6 @@
 
 import Gtk, Gio, GLib from require "lgi"
 
-
 async_command = (argv, callback) ->
   Gio.Async.start(->
     process = Gio.Subprocess {
@@ -22,11 +21,10 @@ async_command = (argv, callback) ->
     callback table.concat buffer
   )!
 
-image = Gtk.Image {
-  file: "hi.png"
-  expand: true
-}
 
+loaded_frames = nil
+
+local window
 window = Gtk.Window {
   title: "Preview"
   border_width: 8
@@ -41,18 +39,47 @@ window = Gtk.Window {
       return Gtk.main_quit!
 
   Gtk.VBox {
-    image
+    Gtk.Image {
+      id: "current_image"
+      file: "hi.png"
+      expand: true
+    }
 
-    Gtk.Scrollbar { }
+    Gtk.HScrollbar {
+      id: "image_scroller"
+
+      on_value_changed: =>
+        value = @adjustment.value
+        value = math.floor value + 0.5
+        return unless loaded_frames
+        frame = loaded_frames[value]
+        window.child.current_image.file = frame
+
+      adjustment: Gtk.Adjustment {
+        lower: 0
+        upper: 100
+        value: 50
+        page_size: 1
+        step_increment: 1
+      }
+    }
 
     Gtk.Button {
       label: "Load images"
 
       on_clicked: =>
         async_command {"find", "frames/"}, (res) ->
-          print "get res", res
+          fnames = for fname in res\gmatch "([^\n]+)"
+            continue unless fname\match "%.png$"
+            fname
 
-        print ">> button is clicked"
+          table.sort fnames
+          loaded_frames = fnames
+
+          adjustment = window.child.image_scroller.adjustment
+          adjustment.lower = 1
+          adjustment.upper = #fnames + 1
+          adjustment.value = 1
     }
   }
 }
