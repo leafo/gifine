@@ -87,7 +87,6 @@ class PreviewWindow
 
               import Gio from require "lgi"
               import snap_frames_rect from require "gifine.commands"
-              print "snapping frames..."
 
               Gio.Async.start(->
                 dir = snap_frames_rect (ffmpeg_process) ->
@@ -96,7 +95,7 @@ class PreviewWindow
 
                 @ffmpeg_process = nil
                 @window.child.record_button.label = "Select rect"
-                print "Wrote to dir", dir
+                @set_frames_from_dir dir
               )!
           }
 
