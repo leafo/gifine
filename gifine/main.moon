@@ -1,8 +1,8 @@
 
 import Gtk from require "lgi"
 
-import PreviewWindow from require "gifine.preview_window"
+import LoadWindow from require "gifine.load_window"
 
-PreviewWindow!
+LoadWindow!
 
 Gtk.main!

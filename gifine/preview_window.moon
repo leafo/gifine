@@ -2,8 +2,6 @@ import Gtk from require "lgi"
 
 import async_command from require "gifine.commands"
 
-window
-
 class PreviewWindow
   new: =>
     @create!
@@ -75,46 +73,6 @@ class PreviewWindow
           }
         }
 
-        Gtk.HBox {
-          spacing: 4
-          Gtk.Button {
-            id: "record_button"
-            label: "Select rect"
-            on_clicked: ->
-              if @ffmpeg_process
-                @ffmpeg_process\force_exit!
-                return
-
-              import Gio from require "lgi"
-              import snap_frames_rect from require "gifine.commands"
-
-              Gio.Async.start(->
-                dir = snap_frames_rect (ffmpeg_process) ->
-                  @ffmpeg_process = ffmpeg_process
-                  @window.child.record_button.label = "Stop recording"
-
-                @ffmpeg_process = nil
-                @window.child.record_button.label = "Select rect"
-                @set_frames_from_dir dir
-              )!
-          }
-
-          Gtk.Button {
-            label: "Load images"
-
-            on_clicked: ->
-              @set_frames_from_dir "frames/"
-          }
-
-          Gtk.FileChooserButton {
-            title: "Pick a Folder"
-            action: "SELECT_FOLDER"
-            on_file_set: (picker) ->
-              folder = picker\get_filename!
-              return unless folder
-              @set_frames_from_dir folder
-          }
-        }
       }
     }
 
