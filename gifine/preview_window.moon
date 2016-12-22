@@ -78,6 +78,18 @@ class PreviewWindow
         Gtk.HBox {
           spacing: 4
           Gtk.Button {
+            label: "Select rect"
+            on_clicked: =>
+              import Gio from require "lgi"
+              import snap_frames_rect from require "gifine.commands"
+              print "snapping frames..."
+
+              Gio.Async.start(->
+                snap_frames_rect!
+              )!
+          }
+
+          Gtk.Button {
             label: "Load images"
 
             on_clicked: ->
