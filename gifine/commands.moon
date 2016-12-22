@@ -32,7 +32,7 @@ command_read = (argv) ->
   table.concat buffer
 
 
-snap_frames_rect = (callback) ->
+snap_frames_rect = (framerate, callback) ->
   out = command_read { "xrectsel" }
 
   w, h, x, y = unpack [tonumber i for i in out\gmatch "%d+"]
@@ -49,7 +49,7 @@ snap_frames_rect = (callback) ->
     argv: {
       "/bin/bash"
       "-c"
-      "cd #{dir} && ffmpeg -f x11grab -r 30 -s '#{w}x#{h}' -i ':0.0+#{x},#{y}' %09d.png"
+      "cd #{dir} && ffmpeg -f x11grab -r '#{framerate}' -s '#{w}x#{h}' -i ':0.0+#{x},#{y}' %09d.png"
     }
     flags: {"INHERIT_FDS"}
   }
