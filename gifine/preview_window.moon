@@ -61,16 +61,39 @@ class PreviewWindow
 
           btn.sensitive = false
 
+          delay = @window.child.delay_input.adjustment.value
+
           Gio.Async.start(->
             out_fname = make_gif @loaded_frames, {
+              :delay
               progress_fn: (step) ->
                 btn.label = "Working: #{step}"
             }
+
             print "Wrote gif to", out_fname
             btn.sensitive = true
             btn.label = default_label
           )!
       }
+
+      Gtk.VBox {
+        spacing: 2
+        Gtk.SpinButton {
+          id: "delay_input"
+          expand: true
+          adjustment: Gtk.Adjustment {
+            lower: 1
+            upper: 10
+            value: 2
+            page_size: 1
+            step_increment: 1
+          }
+        }
+        Gtk.Label {
+          label: "Delay"
+        }
+      }
+
     }
 
 
