@@ -62,10 +62,12 @@ make_gif = (frames, opts={}) ->
   delay = opts.delay or 2
   temp_name = "#{GLib.get_tmp_dir!}/#{random_name!}.gif"
   out_name = opts.fname or "#{GLib.get_tmp_dir!}/#{random_name!}.gif"
+  progress_fn = opts.progress_fn or ->
 
   args = {
     "gm"
     "convert"
+    "-monitor"
     "-delay", tostring delay
     "-loop", "0"
   }
@@ -75,8 +77,12 @@ make_gif = (frames, opts={}) ->
 
   table.insert args, temp_name
 
+  print "Converting to gif"
+  progress_fn "converting"
   command args
 
+  print "Optimizing gif"
+  progress_fn "optimizing"
   command {
     "gifsicle"
     "--colors", "254"

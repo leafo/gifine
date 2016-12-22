@@ -49,17 +49,26 @@ class PreviewWindow
     }
 
   create_action_buttons: =>
+    default_label = "Encode GIF"
+
     Gtk.HBox {
       spacing: 4
       Gtk.Button {
-        label: "Encode gif"
-        on_clicked: ->
+        label: default_label
+        on_clicked: (btn) ->
           import Gio from require "lgi"
           import make_gif from require "gifine.commands"
 
+          btn.sensitive = false
+
           Gio.Async.start(->
-            out_fname = make_gif @loaded_frames
+            out_fname = make_gif @loaded_frames, {
+              progress_fn: (step) ->
+                btn.label = "Working: #{step}"
+            }
             print "Wrote gif to", out_fname
+            btn.sensitive = true
+            btn.label = default_label
           )!
       }
     }
