@@ -43,36 +43,56 @@ class PreviewWindow
           expand: true
         }
 
-        Gtk.HBox {
-          spacing: 4
-          Gtk.HScrollbar {
-            id: "image_scroller"
-            expand: true
+        @create_scrubber!
+        @create_action_buttons!
+      }
+    }
 
-            on_value_changed: (scroller) ->
-              value = scroller.adjustment.value
-              value = math.floor value + 0.5
-              return unless @loaded_frames
-              frame = @loaded_frames[value]
-              print "setting frame", frame, value
-              @window.child.current_image.file = frame
-              @window.child.current_frame_label.label = "#{value}"
+  create_action_buttons: =>
+    Gtk.HBox {
+      spacing: 4
+      Gtk.Button {
+        label: "Encode gif"
+        on_clicked: ->
+          import Gio from require "lgi"
+          import make_gif from require "gifine.commands"
 
-            adjustment: Gtk.Adjustment {
-              lower: 0
-              upper: 100
-              value: 50
-              page_size: 1
-              step_increment: 1
-            }
-          }
+          Gio.Async.start(->
+            out_fname = make_gif @loaded_frames
+            print "Wrote gif to", out_fname
+          )!
+      }
+    }
 
-          Gtk.Label {
-            id: "current_frame_label"
-            label: "Standby"
-          }
+
+  create_scrubber: =>
+    Gtk.HBox {
+      spacing: 4
+      Gtk.HScrollbar {
+        id: "image_scroller"
+        expand: true
+
+        on_value_changed: (scroller) ->
+          value = scroller.adjustment.value
+          value = math.floor value + 0.5
+          return unless @loaded_frames
+          frame = @loaded_frames[value]
+          print "setting frame", frame, value
+          @window.child.current_image.file = frame
+          @window.child.current_frame_label.label = "#{value}"
+
+        adjustment: Gtk.Adjustment {
+          lower: 0
+          upper: 100
+          value: 50
+          page_size: 1
+          step_increment: 1
         }
+      }
 
+      Gtk.Label {
+        id: "current_frame_label"
+        label: "Standby"
       }
     }
 

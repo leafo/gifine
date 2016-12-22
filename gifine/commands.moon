@@ -31,7 +31,6 @@ command_read = (argv) ->
 
   table.concat buffer
 
-
 snap_frames_rect = (framerate, callback) ->
   out = command_read { "xrectsel" }
 
@@ -59,8 +58,41 @@ snap_frames_rect = (framerate, callback) ->
 
   dir
 
+make_gif = (frames, opts={}) ->
+  delay = opts.delay or 2
+  temp_name = "#{GLib.get_tmp_dir!}/#{random_name!}.gif"
+  out_name = opts.fname or "#{GLib.get_tmp_dir!}/#{random_name!}.gif"
+
+  args = {
+    "gm"
+    "convert"
+    "-delay", tostring delay
+    "-loop", "0"
+  }
+
+  for frame in *frames
+    table.insert args, frame
+
+  table.insert args, temp_name
+
+  command args
+
+  command {
+    "gifsicle"
+    "--colors", "254"
+    "-O2"
+    temp_name
+    "-o", out_name
+  }
+
+  command {
+    "rm", temp_name
+  }
+
+  out_name
+
 -- execute command async, read entire output
 async_command = (argv, callback) ->
   Gio.Async.start(-> callback command_read argv)!
 
-{:async_command, :snap_frames_rect}
+{:async_command, :snap_frames_rect, :make_gif}
