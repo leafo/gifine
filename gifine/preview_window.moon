@@ -78,14 +78,25 @@ class PreviewWindow
         Gtk.HBox {
           spacing: 4
           Gtk.Button {
+            id: "record_button"
             label: "Select rect"
-            on_clicked: =>
+            on_clicked: ->
+              if @ffmpeg_process
+                @ffmpeg_process\force_exit!
+                return
+
               import Gio from require "lgi"
               import snap_frames_rect from require "gifine.commands"
               print "snapping frames..."
 
               Gio.Async.start(->
-                snap_frames_rect!
+                dir = snap_frames_rect (ffmpeg_process) ->
+                  @ffmpeg_process = ffmpeg_process
+                  @window.child.record_button.label = "Stop recording"
+
+                @ffmpeg_process = nil
+                @window.child.record_button.label = "Select rect"
+                print "Wrote to dir", dir
               )!
           }
 
