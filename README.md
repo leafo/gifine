@@ -17,8 +17,15 @@ It requires a few external commands to be present to function:
 * xrectsel — for selecting a record area
 * gifsicle — for optimizing gifs
 
-![Screenshot](http://leafo.net/shotsnb/2016-12-23_11-51-01.png)
+## Install
 
+    luarocks install --server=http://luarocks.org/dev gifine
+
+Run the comman `gifine` to use.
+
+## Screenshots
+
+![Screenshot](http://leafo.net/shotsnb/2016-12-23_11-51-01.png)
 
 ## License
 
