@@ -6,6 +6,12 @@ class PreviewWindow
   new: =>
     @create!
     @window\show_all!
+    @set_status "Ready"
+
+  set_status: (msg) =>
+    statusbar = @window.child.statusbar
+    ctx = statusbar\get_context_id "default"
+    statusbar\push ctx, msg
 
   set_frames_from_dir: (dir) =>
     async_command {"find", dir, "-maxdepth", "1"}, (res) ->
@@ -20,11 +26,11 @@ class PreviewWindow
       adjustment.lower = 1
       adjustment.upper = #fnames + 1
       adjustment.value = 1
+      @set_status "Loaded #{dir}"
 
   create: =>
     @window = Gtk.Window {
       title: "Preview"
-      border_width: 8
       default_width: 256
       default_height: 256
 
@@ -36,15 +42,23 @@ class PreviewWindow
           return Gtk.main_quit!
 
       Gtk.VBox {
-        spacing: 4
-        Gtk.Image {
-          id: "current_image"
-          file: "hi.png"
-          expand: true
+        Gtk.VBox {
+          spacing: 4
+          border_width: 8
+
+          Gtk.Image {
+            id: "current_image"
+            file: "hi.png"
+            expand: true
+          }
+
+          @create_scrubber!
+          @create_action_buttons!
         }
 
-        @create_scrubber!
-        @create_action_buttons!
+        Gtk.Statusbar {
+          id: "statusbar"
+        }
       }
     }
 
@@ -96,13 +110,15 @@ class PreviewWindow
 
     }
 
-
   create_scrubber: =>
     Gtk.HBox {
       spacing: 4
-      Gtk.HScrollbar {
+      Gtk.HScale {
         id: "image_scroller"
         expand: true
+
+        round_digits: 0
+        digits: 0
 
         on_value_changed: (scroller) ->
           value = scroller.adjustment.value
