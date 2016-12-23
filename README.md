@@ -21,7 +21,7 @@ It requires a few external commands to be present to function:
 
     luarocks install --server=http://luarocks.org/dev gifine
 
-Run the comman `gifine` to use.
+Run the command `gifine` to use.
 
 ## Screenshots
 
