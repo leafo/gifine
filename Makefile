@@ -1,5 +1,8 @@
 .PHONY: compile
 
+local: compile
+	luarocks make --local gifine-dev-1.rockspec
+
 compile: bin/gifine
 	moonc gifine
 
