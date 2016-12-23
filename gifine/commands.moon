@@ -97,8 +97,49 @@ make_gif = (frames, opts={}) ->
 
   out_name
 
+make_mp4 = (frames, opts={}) ->
+  framerate = opts.framerate or 60
+  out_name = opts.fname or "#{GLib.get_tmp_dir!}/#{random_name!}.mp4"
+  progress_fn = opts.progress_fn or ->
+
+  -- cat files | ffmpeg -y -f image2pipe -r 60 -vcodec png -i - out.mp4
+
+  process  = Gio.Subprocess {
+    argv: {
+      "ffmpeg"
+      "-y"
+      "-f", "image2pipe"
+      "-r", "#{framerate}"
+      "-vcodec", "png"
+      "-i", "-"
+      out_name
+    }
+    flags: {"STDIN_PIPE"}
+  }
+
+  progress_fn "piping"
+  pipe = process\get_stdin_pipe!
+
+  for frame in *frames
+    frame_file = io.open(frame)
+    continue unless frame_file
+
+    print "writing", frame
+    contents = frame_file\read "*a"
+    remaining = #contents
+
+    while remaining > 0
+      wrote = pipe\async_write contents\sub #contents - remaining + 1
+      print "wrote #{wrote}"
+      remaining -= wrote
+
+  print "closing pipe"
+  pipe\async_close!
+  process\async_wait_check!
+  out_name
+
 -- execute command async, read entire output
 async_command = (argv, callback) ->
   Gio.Async.start(-> callback command_read argv)!
 
-{:async_command, :snap_frames_rect, :make_gif}
+{:async_command, :snap_frames_rect, :make_gif, :make_mp4}
