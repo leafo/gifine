@@ -67,11 +67,35 @@ class PreviewWindow
 
     Gtk.HBox {
       spacing: 4
+
       Gtk.Button {
         label: default_label
         on_clicked: (btn) ->
           import Gio from require "lgi"
           import make_gif from require "gifine.commands"
+
+          local save_to
+          dialog = Gtk.FileChooserDialog {
+            title: "Save to GIF"
+            action: Gtk.FileChooserAction.SAVE
+            transient_for: @window
+            buttons: {
+              { Gtk.STOCK_SAVE, Gtk.ResponseType.ACCEPT }
+              { Gtk.STOCK_CLOSE, Gtk.ResponseType.CANCEL }
+            }
+
+            on_response: (dialog, response) ->
+              switch response
+                when Gtk.ResponseType.ACCEPT
+                  save_to = dialog\get_filename!
+                when Gtk.ResponseType.CANCEL
+                  nil
+          }
+
+          dialog\run!
+          dialog\destroy!
+
+          return unless save_to
 
           btn.sensitive = false
 
@@ -79,14 +103,14 @@ class PreviewWindow
 
           Gio.Async.start(->
             out_fname = make_gif @loaded_frames, {
+              fname: save_to
               :delay
               progress_fn: (step) ->
-                btn.label = "Working: #{step}"
+                @set_status "Working: #{step}"
             }
 
-            print "Wrote gif to", out_fname
+            @set_status "Wrote gif to #{out_fname}"
             btn.sensitive = true
-            btn.label = default_label
           )!
       }
 
