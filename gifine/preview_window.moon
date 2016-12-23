@@ -217,7 +217,7 @@ class PreviewWindow
       }
     }
 
-  @choose_save_file: =>
+  choose_save_file: =>
     local save_to
 
     dialog = Gtk.FileChooserDialog {
@@ -239,5 +239,6 @@ class PreviewWindow
 
     dialog\run!
     dialog\destroy!
+    save_to
 
 {:PreviewWindow}
