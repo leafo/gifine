@@ -11,17 +11,50 @@ class PreviewWindow
     @window\show_all!
     @set_status "Ready"
 
+  show_frame: (idx) =>
+    return unless @current_frames
+    @current_frame_idx = idx
+    frame = @current_frames[@current_frame_idx]
+    @window.child.current_image.file = frame
+
+  refresh_adjustment: =>
+    with @window.child.image_scroller.adjustment
+      .lower = 1
+      .upper = #@current_frames + 1
+
+      -- make sure the idx is still within range
+      if @current_frame_idx
+        idx = math.max .lower, math.min @current_frame_idx, .upper
+        if idx != @current_frame_idx
+          .value = idx
+          @show_frame idx
+
   reset_frames: =>
     return unless @loaded_frames
     @current_frames = [f for f in *@loaded_frames]
 
-    adjustment = @window.child.image_scroller.adjustment
-
-    current_frame = adjustment.value
-
-    adjustment.lower = 1
-    adjustment.upper = #@current_frames + 1
+    adjustment = @refresh_adjustment!
     adjustment.value = 1
+
+  trim_left_of: =>
+    return if not @current_frame_idx or @current_frame_idx == 1
+    @current_frames = [frame for idx, frame in ipairs @current_frames when idx >= @current_frame_idx]
+
+    adjustment = @refresh_adjustment!
+    adjustment.value = 1
+
+  trim_right_of: =>
+    return if not @current_frame_idx or @current_frame_idx == #@current_frames
+    @current_frames = [frame for idx, frame in ipairs @current_frames when idx <= @current_frame_idx]
+    @refresh_adjustment!
+
+  delete_current_frame: =>
+    return if not @current_frame_idx or #@current_frames == 0
+
+    @current_frames = [frame for idx, frame in ipairs @current_frames when idx != @current_frame_idx]
+
+    adjustment = @refresh_adjustment!
+    adjustment.value = @current_frame_idx
 
   set_status: (msg) =>
     statusbar = @window.child.statusbar
@@ -64,6 +97,7 @@ class PreviewWindow
           }
 
           @create_scrubber!
+          @create_frame_tools!
           @create_gif_export!
           @create_video_export!
         }
@@ -188,43 +222,48 @@ class PreviewWindow
     }
 
   create_scrubber: =>
+    Gtk.HScale {
+      id: "image_scroller"
+      expand: true
+
+      round_digits: 0
+      digits: 0
+
+      on_value_changed: (scroller) ->
+        value = scroller.adjustment.value
+        idx = math.floor value + 0.5
+        @show_frame idx
+
+      adjustment: Gtk.Adjustment {
+        lower: 0
+        upper: 100
+        value: 50
+        page_size: 1
+        step_increment: 1
+      }
+    }
+
+  create_frame_tools: =>
     Gtk.HBox {
       spacing: 4
       Gtk.Button {
         label: "Trim left of"
-      }
-
-      Gtk.HScale {
-        id: "image_scroller"
-        expand: true
-
-        round_digits: 0
-        digits: 0
-
-        on_value_changed: (scroller) ->
-          value = scroller.adjustment.value
-          value = math.floor value + 0.5
-          return unless @current_frames
-          @current_frame_idx = value
-          frame = @current_frames[value]
-
-          @window.child.current_image.file = frame
-
-        adjustment: Gtk.Adjustment {
-          lower: 0
-          upper: 100
-          value: 50
-          page_size: 1
-          step_increment: 1
-        }
+        on_clicked: -> @trim_left_of!
       }
 
       Gtk.Button {
         label: "Trim right of"
+        on_clicked: -> @trim_right_of!
       }
 
       Gtk.Button {
         label: "Delete frame"
+        on_clicked: -> @delete_current_frame!
+      }
+
+      Gtk.Button {
+        label: "Reset cuts"
+        on_clicked: -> @reset_frames!
       }
     }
 

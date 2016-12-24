@@ -1,10 +1,10 @@
 .PHONY: compile
 
-local: compile
-	luarocks make --local gifine-dev-1.rockspec
-
 compile: bin/gifine
 	moonc gifine
+
+local: compile
+	luarocks make --local gifine-dev-1.rockspec
 
 bin/gifine: bin/gifine.moon
 	echo "#!/usr/bin/env lua" > bin/gifine

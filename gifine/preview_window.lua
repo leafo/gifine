@@ -8,6 +8,29 @@ do
   local _base_0 = {
     loaded_frames = nil,
     working_frames = nil,
+    show_frame = function(self, idx)
+      if not (self.current_frames) then
+        return 
+      end
+      self.current_frame_idx = idx
+      local frame = self.current_frames[self.current_frame_idx]
+      self.window.child.current_image.file = frame
+    end,
+    refresh_adjustment = function(self)
+      do
+        local _with_0 = self.window.child.image_scroller.adjustment
+        _with_0.lower = 1
+        _with_0.upper = #self.current_frames + 1
+        if self.current_frame_idx then
+          local idx = math.max(_with_0.lower, math.min(self.current_frame_idx, _with_0.upper))
+          if idx ~= self.current_frame_idx then
+            _with_0.value = idx
+            self:show_frame(idx)
+          end
+        end
+        return _with_0
+      end
+    end,
     reset_frames = function(self)
       if not (self.loaded_frames) then
         return 
@@ -23,11 +46,61 @@ do
         end
         self.current_frames = _accum_0
       end
-      local adjustment = self.window.child.image_scroller.adjustment
-      local current_frame = adjustment.value
-      adjustment.lower = 1
-      adjustment.upper = #self.current_frames + 1
+      local adjustment = self:refresh_adjustment()
       adjustment.value = 1
+    end,
+    trim_left_of = function(self)
+      if not self.current_frame_idx or self.current_frame_idx == 1 then
+        return 
+      end
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for idx, frame in ipairs(self.current_frames) do
+          if idx >= self.current_frame_idx then
+            _accum_0[_len_0] = frame
+            _len_0 = _len_0 + 1
+          end
+        end
+        self.current_frames = _accum_0
+      end
+      local adjustment = self:refresh_adjustment()
+      adjustment.value = 1
+    end,
+    trim_right_of = function(self)
+      if not self.current_frame_idx or self.current_frame_idx == #self.current_frames then
+        return 
+      end
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for idx, frame in ipairs(self.current_frames) do
+          if idx <= self.current_frame_idx then
+            _accum_0[_len_0] = frame
+            _len_0 = _len_0 + 1
+          end
+        end
+        self.current_frames = _accum_0
+      end
+      return self:refresh_adjustment()
+    end,
+    delete_current_frame = function(self)
+      if not self.current_frame_idx or #self.current_frames == 0 then
+        return 
+      end
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for idx, frame in ipairs(self.current_frames) do
+          if idx ~= self.current_frame_idx then
+            _accum_0[_len_0] = frame
+            _len_0 = _len_0 + 1
+          end
+        end
+        self.current_frames = _accum_0
+      end
+      local adjustment = self:refresh_adjustment()
+      adjustment.value = self.current_frame_idx
     end,
     set_status = function(self, msg)
       local statusbar = self.window.child.statusbar
@@ -91,6 +164,7 @@ do
               expand = true
             }),
             self:create_scrubber(),
+            self:create_frame_tools(),
             self:create_gif_export(),
             self:create_video_export()
           }),
@@ -205,39 +279,51 @@ do
       })
     end,
     create_scrubber = function(self)
+      return Gtk.HScale({
+        id = "image_scroller",
+        expand = true,
+        round_digits = 0,
+        digits = 0,
+        on_value_changed = function(scroller)
+          local value = scroller.adjustment.value
+          local idx = math.floor(value + 0.5)
+          return self:show_frame(idx)
+        end,
+        adjustment = Gtk.Adjustment({
+          lower = 0,
+          upper = 100,
+          value = 50,
+          page_size = 1,
+          step_increment = 1
+        })
+      })
+    end,
+    create_frame_tools = function(self)
       return Gtk.HBox({
         spacing = 4,
         Gtk.Button({
-          label = "Trim left of"
-        }),
-        Gtk.HScale({
-          id = "image_scroller",
-          expand = true,
-          round_digits = 0,
-          digits = 0,
-          on_value_changed = function(scroller)
-            local value = scroller.adjustment.value
-            value = math.floor(value + 0.5)
-            if not (self.current_frames) then
-              return 
-            end
-            self.current_frame_idx = value
-            local frame = self.current_frames[value]
-            self.window.child.current_image.file = frame
-          end,
-          adjustment = Gtk.Adjustment({
-            lower = 0,
-            upper = 100,
-            value = 50,
-            page_size = 1,
-            step_increment = 1
-          })
+          label = "Trim left of",
+          on_clicked = function()
+            return self:trim_left_of()
+          end
         }),
         Gtk.Button({
-          label = "Trim right of"
+          label = "Trim right of",
+          on_clicked = function()
+            return self:trim_right_of()
+          end
         }),
         Gtk.Button({
-          label = "Delete frame"
+          label = "Delete frame",
+          on_clicked = function()
+            return self:delete_current_frame()
+          end
+        }),
+        Gtk.Button({
+          label = "Reset cuts",
+          on_clicked = function()
+            return self:reset_frames()
+          end
         })
       })
     end,
