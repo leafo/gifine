@@ -212,14 +212,14 @@ do
               btn.sensitive = false
               local framerate = self.window.child.framerate_input.adjustment.value
               return Gio.Async.start(function()
-                local out_fname = make_mp4(self.current_frames, {
+                local out_fname, size = make_mp4(self.current_frames, {
                   fname = save_to,
                   framerate = framerate,
                   progress_fn = function(step)
                     return self:set_status("Working: " .. tostring(step))
                   end
                 })
-                self:set_status("Wrote mp4 to " .. tostring(out_fname))
+                self:set_status("Wrote mp4 to " .. tostring(out_fname) .. " (" .. tostring(size) .. ")")
                 btn.sensitive = true
               end)()
             end
@@ -264,14 +264,14 @@ do
               btn.sensitive = false
               local delay = self.window.child.delay_input.adjustment.value
               return Gio.Async.start(function()
-                local out_fname = make_gif(self.current_frames, {
+                local out_fname, size = make_gif(self.current_frames, {
                   fname = save_to,
                   delay = delay,
                   progress_fn = function(step)
                     return self:set_status("Working: " .. tostring(step))
                   end
                 })
-                self:set_status("Wrote gif to " .. tostring(out_fname))
+                self:set_status("Wrote gif to " .. tostring(out_fname) .. " (" .. tostring(size) .. ")")
                 btn.sensitive = true
               end)()
             end

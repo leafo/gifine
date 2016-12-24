@@ -47,6 +47,17 @@ command_read = function(argv)
   end
   return table.concat(buffer)
 end
+local file_size
+file_size = function(fname)
+  local res = command_read({
+    "du",
+    "-b",
+    "-h",
+    fname
+  })
+  local size = res:match("^[^%s]+")
+  return size
+end
 local snap_frames_rect
 snap_frames_rect = function(framerate, callback)
   local out = command_read({
@@ -129,7 +140,8 @@ make_gif = function(frames, opts)
     "rm",
     temp_name
   })
-  return out_name
+  local size = file_size(out_name)
+  return out_name, size
 end
 local make_mp4
 make_mp4 = function(frames, opts)
@@ -185,7 +197,8 @@ make_mp4 = function(frames, opts)
   print("closing pipe")
   pipe:async_close()
   process:async_wait_check()
-  return out_name
+  local size = file_size(out_name)
+  return out_name, size
 end
 local async_command
 async_command = function(argv, callback)
