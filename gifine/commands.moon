@@ -118,10 +118,11 @@ make_mp4 = (frames, opts={}) ->
       "-f", "image2pipe"
       "-r", "#{framerate}"
       "-vcodec", "png"
-      -- "-vcodec", "h264"
-      "-vf", "'scale=trunc(in_w/2)*2:trunc(in_h/2)*2'"
-      "-pix_fmt", "yuv420p"
       "-i", "-"
+
+      "-vcodec", "h264"
+      "-vf", "scale=trunc(in_w/2)*2:trunc(in_h/2)*2"
+      "-pix_fmt", "yuv420p"
       out_name
     }
     flags: {"STDIN_PIPE"}
@@ -140,6 +141,10 @@ make_mp4 = (frames, opts={}) ->
 
     while remaining > 0
       wrote = pipe\async_write contents\sub #contents - remaining + 1
+      if wrote == -1
+        progress_fn "failed to write frames"
+        return nil
+
       print "wrote #{wrote}"
       remaining -= wrote
 

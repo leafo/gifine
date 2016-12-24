@@ -161,12 +161,14 @@ make_mp4 = function(frames, opts)
       tostring(framerate),
       "-vcodec",
       "png",
-      "-vf",
-      "'scale=trunc(in_w/2)*2:trunc(in_h/2)*2'",
-      "-pix_fmt",
-      "yuv420p",
       "-i",
       "-",
+      "-vcodec",
+      "h264",
+      "-vf",
+      "scale=trunc(in_w/2)*2:trunc(in_h/2)*2",
+      "-pix_fmt",
+      "yuv420p",
       out_name
     },
     flags = {
@@ -189,6 +191,10 @@ make_mp4 = function(frames, opts)
       local remaining = #contents
       while remaining > 0 do
         local wrote = pipe:async_write(contents:sub(#contents - remaining + 1))
+        if wrote == -1 then
+          progress_fn("failed to write frames")
+          return nil
+        end
         print("wrote " .. tostring(wrote))
         remaining = remaining - wrote
       end
