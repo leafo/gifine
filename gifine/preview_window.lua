@@ -25,7 +25,6 @@ do
           local idx = math.max(_with_0.lower, math.min(self.current_frame_idx, _with_0.upper))
           if idx ~= self.current_frame_idx then
             _with_0.value = idx
-            self:show_frame(idx)
           end
         end
         return _with_0
@@ -48,6 +47,25 @@ do
       end
       local adjustment = self:refresh_adjustment()
       adjustment.value = 1
+    end,
+    halve_frames = function(self)
+      if #self.current_frames == 1 then
+        return 
+      end
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for idx, frame in ipairs(self.current_frames) do
+          if idx % 2 == (self.current_frame_idx % 2) then
+            _accum_0[_len_0] = frame
+            _len_0 = _len_0 + 1
+          end
+        end
+        self.current_frames = _accum_0
+      end
+      local new_idx = math.min(#self.current_frames, math.max(1, math.floor(self.current_frame_idx / 2)))
+      local adjustment = self:refresh_adjustment()
+      adjustment.value = new_idx
     end,
     trim_left_of = function(self)
       if not self.current_frame_idx or self.current_frame_idx == 1 then
@@ -100,7 +118,7 @@ do
         self.current_frames = _accum_0
       end
       local adjustment = self:refresh_adjustment()
-      adjustment.value = self.current_frame_idx
+      return self:show_frame(self.current_frame_idx)
     end,
     set_status = function(self, msg)
       local statusbar = self.window.child.statusbar
@@ -317,6 +335,12 @@ do
           label = "Delete frame",
           on_clicked = function()
             return self:delete_current_frame()
+          end
+        }),
+        Gtk.Button({
+          label = "Halve frames",
+          on_clicked = function()
+            return self:halve_frames()
           end
         }),
         Gtk.Button({

@@ -27,7 +27,6 @@ class PreviewWindow
         idx = math.max .lower, math.min @current_frame_idx, .upper
         if idx != @current_frame_idx
           .value = idx
-          @show_frame idx
 
   reset_frames: =>
     return unless @loaded_frames
@@ -35,6 +34,14 @@ class PreviewWindow
 
     adjustment = @refresh_adjustment!
     adjustment.value = 1
+
+  halve_frames: =>
+    return if #@current_frames == 1
+    @current_frames = [frame for idx, frame in ipairs @current_frames when idx % 2 == (@current_frame_idx % 2)]
+    new_idx = math.min #@current_frames, math.max 1, math.floor @current_frame_idx / 2
+
+    adjustment = @refresh_adjustment!
+    adjustment.value = new_idx
 
   trim_left_of: =>
     return if not @current_frame_idx or @current_frame_idx == 1
@@ -54,7 +61,7 @@ class PreviewWindow
     @current_frames = [frame for idx, frame in ipairs @current_frames when idx != @current_frame_idx]
 
     adjustment = @refresh_adjustment!
-    adjustment.value = @current_frame_idx
+    @show_frame @current_frame_idx
 
   set_status: (msg) =>
     statusbar = @window.child.statusbar
@@ -259,6 +266,11 @@ class PreviewWindow
       Gtk.Button {
         label: "Delete frame"
         on_clicked: -> @delete_current_frame!
+      }
+
+      Gtk.Button {
+        label: "Halve frames"
+        on_clicked: -> @halve_frames!
       }
 
       Gtk.Button {
