@@ -137,14 +137,14 @@ class PreviewWindow
             framerate = @window.child.framerate_input.adjustment.value
 
             Gio.Async.start(->
-              out_fname = make_mp4 @current_frames, {
+              out_fname, size = make_mp4 @current_frames, {
                 fname: save_to
                 :framerate
                 progress_fn: (step) ->
                   @set_status "Working: #{step}"
               }
 
-              @set_status "Wrote mp4 to #{out_fname}"
+              @set_status "Wrote mp4 to #{out_fname} (#{size})"
               btn.sensitive = true
             )!
 
@@ -195,14 +195,14 @@ class PreviewWindow
             delay = @window.child.delay_input.adjustment.value
 
             Gio.Async.start(->
-              out_fname = make_gif @current_frames, {
+              out_fname, size = make_gif @current_frames, {
                 fname: save_to
                 :delay
                 progress_fn: (step) ->
                   @set_status "Working: #{step}"
               }
 
-              @set_status "Wrote gif to #{out_fname}"
+              @set_status "Wrote gif to #{out_fname} (#{size})"
               btn.sensitive = true
             )!
         }

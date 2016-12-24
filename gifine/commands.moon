@@ -31,6 +31,14 @@ command_read = (argv) ->
 
   table.concat buffer
 
+file_size = (fname) ->
+  res = command_read {
+    "du", "-b", "-h", fname
+  }
+
+  size = res\match "^[^%s]+"
+  size
+
 snap_frames_rect = (framerate, callback) ->
   out = command_read { "xrectsel" }
 
@@ -95,7 +103,8 @@ make_gif = (frames, opts={}) ->
     "rm", temp_name
   }
 
-  out_name
+  size = file_size out_name
+  out_name, size
 
 make_mp4 = (frames, opts={}) ->
   framerate = opts.framerate or 60
@@ -136,7 +145,8 @@ make_mp4 = (frames, opts={}) ->
   print "closing pipe"
   pipe\async_close!
   process\async_wait_check!
-  out_name
+  size = file_size out_name
+  out_name, size
 
 -- execute command async, read entire output
 async_command = (argv, callback) ->
