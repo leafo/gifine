@@ -6,6 +6,29 @@ local PreviewWindow
 do
   local _class_0
   local _base_0 = {
+    loaded_frames = nil,
+    working_frames = nil,
+    reset_frames = function(self)
+      if not (self.loaded_frames) then
+        return 
+      end
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        local _list_0 = self.loaded_frames
+        for _index_0 = 1, #_list_0 do
+          local f = _list_0[_index_0]
+          _accum_0[_len_0] = f
+          _len_0 = _len_0 + 1
+        end
+        self.current_frames = _accum_0
+      end
+      local adjustment = self.window.child.image_scroller.adjustment
+      local current_frame = adjustment.value
+      adjustment.lower = 1
+      adjustment.upper = #self.current_frames + 1
+      adjustment.value = 1
+    end,
     set_status = function(self, msg)
       local statusbar = self.window.child.statusbar
       local ctx = statusbar:get_context_id("default")
@@ -42,10 +65,7 @@ do
         end
         table.sort(fnames)
         self.loaded_frames = fnames
-        local adjustment = self.window.child.image_scroller.adjustment
-        adjustment.lower = 1
-        adjustment.upper = #fnames + 1
-        adjustment.value = 1
+        self:reset_frames()
         return self:set_status("Loaded " .. tostring(dir))
       end)
     end,
@@ -68,7 +88,6 @@ do
             border_width = 8,
             Gtk.Image({
               id = "current_image",
-              file = "hi.png",
               expand = true
             }),
             self:create_scrubber(),
@@ -101,7 +120,7 @@ do
               btn.sensitive = false
               local framerate = self.window.child.framerate_input.adjustment.value
               return Gio.Async.start(function()
-                local out_fname = make_mp4(self.loaded_frames, {
+                local out_fname = make_mp4(self.current_frames, {
                   fname = save_to,
                   framerate = framerate,
                   progress_fn = function(step)
@@ -153,7 +172,7 @@ do
               btn.sensitive = false
               local delay = self.window.child.delay_input.adjustment.value
               return Gio.Async.start(function()
-                local out_fname = make_gif(self.loaded_frames, {
+                local out_fname = make_gif(self.current_frames, {
                   fname = save_to,
                   delay = delay,
                   progress_fn = function(step)
@@ -199,11 +218,11 @@ do
           on_value_changed = function(scroller)
             local value = scroller.adjustment.value
             value = math.floor(value + 0.5)
-            if not (self.loaded_frames) then
+            if not (self.current_frames) then
               return 
             end
             self.current_frame_idx = value
-            local frame = self.loaded_frames[value]
+            local frame = self.current_frames[value]
             self.window.child.current_image.file = frame
           end,
           adjustment = Gtk.Adjustment({

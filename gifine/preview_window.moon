@@ -3,10 +3,25 @@ import Gtk from require "lgi"
 import async_command from require "gifine.commands"
 
 class PreviewWindow
+  loaded_frames: nil
+  working_frames: nil
+
   new: =>
     @create!
     @window\show_all!
     @set_status "Ready"
+
+  reset_frames: =>
+    return unless @loaded_frames
+    @current_frames = [f for f in *@loaded_frames]
+
+    adjustment = @window.child.image_scroller.adjustment
+
+    current_frame = adjustment.value
+
+    adjustment.lower = 1
+    adjustment.upper = #@current_frames + 1
+    adjustment.value = 1
 
   set_status: (msg) =>
     statusbar = @window.child.statusbar
@@ -21,11 +36,8 @@ class PreviewWindow
 
       table.sort fnames
       @loaded_frames = fnames
+      @reset_frames!
 
-      adjustment = @window.child.image_scroller.adjustment
-      adjustment.lower = 1
-      adjustment.upper = #fnames + 1
-      adjustment.value = 1
       @set_status "Loaded #{dir}"
 
   create: =>
@@ -48,7 +60,6 @@ class PreviewWindow
 
           Gtk.Image {
             id: "current_image"
-            file: "hi.png"
             expand: true
           }
 
@@ -85,7 +96,7 @@ class PreviewWindow
             framerate = @window.child.framerate_input.adjustment.value
 
             Gio.Async.start(->
-              out_fname = make_mp4 @loaded_frames, {
+              out_fname = make_mp4 @current_frames, {
                 fname: save_to
                 :framerate
                 progress_fn: (step) ->
@@ -143,7 +154,7 @@ class PreviewWindow
             delay = @window.child.delay_input.adjustment.value
 
             Gio.Async.start(->
-              out_fname = make_gif @loaded_frames, {
+              out_fname = make_gif @current_frames, {
                 fname: save_to
                 :delay
                 progress_fn: (step) ->
@@ -193,9 +204,9 @@ class PreviewWindow
         on_value_changed: (scroller) ->
           value = scroller.adjustment.value
           value = math.floor value + 0.5
-          return unless @loaded_frames
+          return unless @current_frames
           @current_frame_idx = value
-          frame = @loaded_frames[value]
+          frame = @current_frames[value]
 
           @window.child.current_image.file = frame
 
