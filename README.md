@@ -20,6 +20,10 @@ It requires a few external commands to be present to function:
 
 Most of these things should be able to be installed from your package manager
 
+The recorded frames recorded aren't automatically cleaned up. You can find them
+in your `/tmp` dir if you want to reload a session. Use the *load directory*
+button on the initial screen.
+
 ## Install
 
     luarocks install --server=http://luarocks.org/dev gifine
