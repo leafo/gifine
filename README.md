@@ -12,10 +12,13 @@ mp4.
 
 It requires a few external commands to be present to function:
 
-* ffmpeg — for creating mp4, and recording from desktop
-* GraphicsMagick — for creating gif
-* xrectsel — for selecting a record area
-* gifsicle — for optimizing gifs
+* [ffmpeg](https://ffmpeg.org/) — for creating mp4, and recording from desktop
+* [GraphicsMagick](http://www.graphicsmagick.org/) — for creating gif
+* [xrectsel](https://github.com/lolilolicon/xrectsel) — for selecting a record area
+* [gifsicle](https://www.lcdf.org/gifsicle/) — for optimizing gifs
+* [luarocks](https://luarocks.org) — to install the thing
+
+Most of these things should be able to be installed from your package manager
 
 ## Install
 
@@ -23,9 +26,9 @@ It requires a few external commands to be present to function:
 
 Run the command `gifine` to use.
 
-## Screenshots
+## Demo
 
-![Screenshot](http://leafo.net/shotsnb/2016-12-23_11-51-01.png)
+[![Gifine demo](https://img.youtube.com/vi/FYSoAt3EZUE/0.jpg)](https://www.youtube.com/watch?v=FYSoAt3EZUE)
 
 ## License
 
