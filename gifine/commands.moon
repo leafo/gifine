@@ -111,8 +111,6 @@ make_mp4 = (frames, opts={}) ->
   out_name = opts.fname or "#{GLib.get_tmp_dir!}/#{random_name!}.mp4"
   progress_fn = opts.progress_fn or ->
 
-  -- cat files | ffmpeg -y -f image2pipe -r 60 -vcodec png -i - out.mp4
-
   process  = Gio.Subprocess {
     argv: {
       "ffmpeg"
@@ -120,6 +118,9 @@ make_mp4 = (frames, opts={}) ->
       "-f", "image2pipe"
       "-r", "#{framerate}"
       "-vcodec", "png"
+      -- "-vcodec", "h264"
+      "-vf", "'scale=trunc(in_w/2)*2:trunc(in_h/2)*2'"
+      "-pix_fmt", "yuv420p"
       "-i", "-"
       out_name
     }

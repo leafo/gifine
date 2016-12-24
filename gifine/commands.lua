@@ -161,6 +161,10 @@ make_mp4 = function(frames, opts)
       tostring(framerate),
       "-vcodec",
       "png",
+      "-vf",
+      "'scale=trunc(in_w/2)*2:trunc(in_h/2)*2'",
+      "-pix_fmt",
+      "yuv420p",
       "-i",
       "-",
       out_name
