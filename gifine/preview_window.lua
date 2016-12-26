@@ -211,10 +211,12 @@ do
               end
               btn.sensitive = false
               local framerate = self.window.child.framerate_input.adjustment.value
+              local loop = self.window.child.loop_input.adjustment.value
               return Gio.Async.start(function()
                 local out_fname, size = make_mp4(self.current_frames, {
                   fname = save_to,
                   framerate = framerate,
+                  loop = loop,
                   progress_fn = function(step)
                     return self:set_status("Working: " .. tostring(step))
                   end
@@ -239,6 +241,23 @@ do
             }),
             Gtk.Label({
               label = "Framerate"
+            })
+          }),
+          Gtk.VBox({
+            spacing = 2,
+            Gtk.SpinButton({
+              id = "loop_input",
+              expand = true,
+              adjustment = Gtk.Adjustment({
+                lower = 1,
+                upper = 100,
+                value = 1,
+                page_size = 1,
+                step_increment = 1
+              })
+            }),
+            Gtk.Label({
+              label = "Loop"
             })
           })
         })

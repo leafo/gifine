@@ -135,11 +135,13 @@ class PreviewWindow
 
             btn.sensitive = false
             framerate = @window.child.framerate_input.adjustment.value
+            loop = @window.child.loop_input.adjustment.value
 
             Gio.Async.start(->
               out_fname, size = make_mp4 @current_frames, {
                 fname: save_to
                 :framerate
+                :loop
                 progress_fn: (step) ->
                   @set_status "Working: #{step}"
               }
@@ -168,6 +170,25 @@ class PreviewWindow
             label: "Framerate"
           }
         }
+
+        Gtk.VBox {
+          spacing: 2
+          Gtk.SpinButton {
+            id: "loop_input"
+            expand: true
+            adjustment: Gtk.Adjustment {
+              lower: 1
+              upper: 100
+              value: 1
+              page_size: 1
+              step_increment: 1
+            }
+          }
+          Gtk.Label {
+            label: "Loop"
+          }
+        }
+
 
       }
     }

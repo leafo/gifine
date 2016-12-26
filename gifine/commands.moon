@@ -108,6 +108,7 @@ make_gif = (frames, opts={}) ->
 
 make_mp4 = (frames, opts={}) ->
   framerate = opts.framerate or 60
+  loop = opts.loop or 1
   out_name = opts.fname or "#{GLib.get_tmp_dir!}/#{random_name!}.mp4"
   progress_fn = opts.progress_fn or ->
 
@@ -131,22 +132,23 @@ make_mp4 = (frames, opts={}) ->
   progress_fn "piping"
   pipe = process\get_stdin_pipe!
 
-  for frame in *frames
-    frame_file = io.open(frame)
-    continue unless frame_file
+  for i=1,loop
+    for frame in *frames
+      frame_file = io.open(frame)
+      continue unless frame_file
 
-    print "writing", frame
-    contents = frame_file\read "*a"
-    remaining = #contents
+      print "writing", frame
+      contents = frame_file\read "*a"
+      remaining = #contents
 
-    while remaining > 0
-      wrote = pipe\async_write contents\sub #contents - remaining + 1
-      if wrote == -1
-        progress_fn "failed to write frames"
-        return nil
+      while remaining > 0
+        wrote = pipe\async_write contents\sub #contents - remaining + 1
+        if wrote == -1
+          progress_fn "failed to write frames"
+          return nil
 
-      print "wrote #{wrote}"
-      remaining -= wrote
+        print "wrote #{wrote}"
+        remaining -= wrote
 
   print "closing pipe"
   pipe\async_close!

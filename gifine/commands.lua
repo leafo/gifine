@@ -149,6 +149,7 @@ make_mp4 = function(frames, opts)
     opts = { }
   end
   local framerate = opts.framerate or 60
+  local loop = opts.loop or 1
   local out_name = opts.fname or tostring(GLib.get_tmp_dir()) .. "/" .. tostring(random_name()) .. ".mp4"
   local progress_fn = opts.progress_fn or function() end
   local process = Gio.Subprocess({
@@ -177,31 +178,33 @@ make_mp4 = function(frames, opts)
   })
   progress_fn("piping")
   local pipe = process:get_stdin_pipe()
-  for _index_0 = 1, #frames do
-    local _continue_0 = false
-    repeat
-      local frame = frames[_index_0]
-      local frame_file = io.open(frame)
-      if not (frame_file) then
+  for i = 1, loop do
+    for _index_0 = 1, #frames do
+      local _continue_0 = false
+      repeat
+        local frame = frames[_index_0]
+        local frame_file = io.open(frame)
+        if not (frame_file) then
+          _continue_0 = true
+          break
+        end
+        print("writing", frame)
+        local contents = frame_file:read("*a")
+        local remaining = #contents
+        while remaining > 0 do
+          local wrote = pipe:async_write(contents:sub(#contents - remaining + 1))
+          if wrote == -1 then
+            progress_fn("failed to write frames")
+            return nil
+          end
+          print("wrote " .. tostring(wrote))
+          remaining = remaining - wrote
+        end
         _continue_0 = true
+      until true
+      if not _continue_0 then
         break
       end
-      print("writing", frame)
-      local contents = frame_file:read("*a")
-      local remaining = #contents
-      while remaining > 0 do
-        local wrote = pipe:async_write(contents:sub(#contents - remaining + 1))
-        if wrote == -1 then
-          progress_fn("failed to write frames")
-          return nil
-        end
-        print("wrote " .. tostring(wrote))
-        remaining = remaining - wrote
-      end
-      _continue_0 = true
-    until true
-    if not _continue_0 then
-      break
     end
   end
   print("closing pipe")
