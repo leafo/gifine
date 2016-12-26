@@ -134,21 +134,20 @@ make_mp4 = (frames, opts={}) ->
 
   for i=1,loop
     for frame in *frames
-      frame_file = io.open(frame)
-      continue unless frame_file
+      print "Reading", frame
+      file = Gio.File.new_for_path frame
 
-      print "writing", frame
-      contents = frame_file\read "*a"
-      remaining = #contents
+      stream = assert file\async_read()
+      while true
+        bytes = assert stream\async_read_bytes 1024 * 10
 
-      while remaining > 0
-        wrote = pipe\async_write contents\sub #contents - remaining + 1
-        if wrote == -1
-          progress_fn "failed to write frames"
-          return nil
+        break unless bytes and #bytes > 0
 
-        print "wrote #{wrote}"
-        remaining -= wrote
+        while true
+          wrote = pipe\async_write_bytes bytes
+          break if wrote == #bytes
+          bytes = bytes\new_from_bytes wrote, #bytes - wrote
+
 
   print "closing pipe"
   pipe\async_close!

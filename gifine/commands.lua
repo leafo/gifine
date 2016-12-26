@@ -180,30 +180,22 @@ make_mp4 = function(frames, opts)
   local pipe = process:get_stdin_pipe()
   for i = 1, loop do
     for _index_0 = 1, #frames do
-      local _continue_0 = false
-      repeat
-        local frame = frames[_index_0]
-        local frame_file = io.open(frame)
-        if not (frame_file) then
-          _continue_0 = true
+      local frame = frames[_index_0]
+      print("Reading", frame)
+      local file = Gio.File.new_for_path(frame)
+      local stream = assert(file:async_read())
+      while true do
+        local bytes = assert(stream:async_read_bytes(1024 * 10))
+        if not (bytes and #bytes > 0) then
           break
         end
-        print("writing", frame)
-        local contents = frame_file:read("*a")
-        local remaining = #contents
-        while remaining > 0 do
-          local wrote = pipe:async_write(contents:sub(#contents - remaining + 1))
-          if wrote == -1 then
-            progress_fn("failed to write frames")
-            return nil
+        while true do
+          local wrote = pipe:async_write_bytes(bytes)
+          if wrote == #bytes then
+            break
           end
-          print("wrote " .. tostring(wrote))
-          remaining = remaining - wrote
+          bytes = bytes:new_from_bytes(wrote, #bytes - wrote)
         end
-        _continue_0 = true
-      until true
-      if not _continue_0 then
-        break
       end
     end
   end
