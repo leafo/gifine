@@ -14,9 +14,15 @@ It requires a few external commands to be present to function:
 
 * [ffmpeg](https://ffmpeg.org/) — for creating mp4, and recording from desktop
 * [GraphicsMagick](http://www.graphicsmagick.org/) — for creating gif
-* [xrectsel](https://github.com/lolilolicon/xrectsel) — for selecting a record area
 * [gifsicle](https://www.lcdf.org/gifsicle/) — for optimizing gifs
 * [luarocks](https://luarocks.org) — to install the thing
+
+In order to select a record area you need one of the following:
+
+* [xrectsel](https://github.com/lolilolicon/xrectsel)
+* [slop](https://github.com/naelstrof/slop)
+
+> I recommend slop
 
 Most of these things should be able to be installed from your package manager
 
