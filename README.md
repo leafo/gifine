@@ -38,6 +38,11 @@ Run the command `gifine` to use.
 
 [![Gifine demo](https://img.youtube.com/vi/FYSoAt3EZUE/0.jpg)](https://www.youtube.com/watch?v=FYSoAt3EZUE)
 
+## Articles
+
+* <http://www.omgubuntu.co.uk/2016/12/gifine-animated-gif-recorder-linux>
+* <https://www.gamingonlinux.com/articles/gifine-is-a-pretty-simple-open-source-tool-for-making-small-gifs-and-videos.8800>
+
 ## License
 
 MIT, Copyright (C) 2016 by Leaf Corcoran
