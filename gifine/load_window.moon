@@ -99,15 +99,36 @@ class LoadWindow
         import snap_frames_rect from require "gifine.commands"
 
         Gio.Async.start(->
-          dir = snap_frames_rect framerate, (ffmpeg_process) ->
+          dir, err = snap_frames_rect framerate, (ffmpeg_process) ->
             @ffmpeg_process = ffmpeg_process
             @window.child.record_button.label = @record_text.recording
+
+          unless dir
+            if err == "missing command"
+              @show_alert "Missing command", "You need either slop or xrectsel installed to select a rectangle to record. Check README.md for more information."
+
+            return
+
 
           @ffmpeg_process = nil
           @window.child.record_button.label = @record_text.standby
           @open_preview_from_dir dir
         )!
     }
+
+  show_alert: (title, text) =>
+    dialog = Gtk.MessageDialog {
+      text: title
+      secondary_text: text
+      message_type: Gtk.MessageType.ERROR
+      buttons: Gtk.ButtonsType.CLOSE
+      transient_for: @window
+    }
+
+    dialog\run!
+    dialog\destroy!
+
+
 
 {:LoadWindow}
 

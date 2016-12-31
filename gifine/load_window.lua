@@ -94,16 +94,33 @@ do
           local snap_frames_rect
           snap_frames_rect = require("gifine.commands").snap_frames_rect
           return Gio.Async.start(function()
-            local dir = snap_frames_rect(framerate, function(ffmpeg_process)
+            local dir, err = snap_frames_rect(framerate, function(ffmpeg_process)
               self.ffmpeg_process = ffmpeg_process
               self.window.child.record_button.label = self.record_text.recording
             end)
+            if not (dir) then
+              if err == "missing command" then
+                self:show_alert("Missing command", "You need either slop or xrectsel installed to select a rectangle to record. Check README.md for more information.")
+              end
+              return 
+            end
             self.ffmpeg_process = nil
             self.window.child.record_button.label = self.record_text.standby
             return self:open_preview_from_dir(dir)
           end)()
         end
       })
+    end,
+    show_alert = function(self, title, text)
+      local dialog = Gtk.MessageDialog({
+        text = title,
+        secondary_text = text,
+        message_type = Gtk.MessageType.ERROR,
+        buttons = Gtk.ButtonsType.CLOSE,
+        transient_for = self.window
+      })
+      dialog:run()
+      return dialog:destroy()
     end
   }
   _base_0.__index = _base_0
