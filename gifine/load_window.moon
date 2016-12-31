@@ -89,6 +89,8 @@ class LoadWindow
 
       on_clicked: ->
         if @ffmpeg_process
+          input = @ffmpeg_process\get_stdin_pipe!
+          input\write "q"
           @ffmpeg_process\force_exit!
           return
 

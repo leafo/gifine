@@ -84,6 +84,8 @@ do
         label = self.record_text.standby,
         on_clicked = function()
           if self.ffmpeg_process then
+            local input = self.ffmpeg_process:get_stdin_pipe()
+            input:write("q")
             self.ffmpeg_process:force_exit()
             return 
           end

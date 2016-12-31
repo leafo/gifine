@@ -88,12 +88,12 @@ snap_frames_rect = (framerate, callback) ->
       "-c"
       "cd #{dir} && ffmpeg -f x11grab -r '#{framerate}' -s '#{w}x#{h}' -i ':0.0+#{x},#{y}' %09d.png"
     }
-    flags: {"INHERIT_FDS"}
+    flags: {"STDIN_PIPE"}
   }
 
   callback ffmpeg_process
-  ffmpeg_process\async_wait!
 
+  ffmpeg_process\async_wait!
   dir
 
 make_gif = (frames, opts={}) ->

@@ -125,7 +125,7 @@ snap_frames_rect = function(framerate, callback)
       "cd " .. tostring(dir) .. " && ffmpeg -f x11grab -r '" .. tostring(framerate) .. "' -s '" .. tostring(w) .. "x" .. tostring(h) .. "' -i ':0.0+" .. tostring(x) .. "," .. tostring(y) .. "' %09d.png"
     },
     flags = {
-      "INHERIT_FDS"
+      "STDIN_PIPE"
     }
   })
   callback(ffmpeg_process)
