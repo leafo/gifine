@@ -19,10 +19,8 @@ It requires a few external commands to be present to function:
 
 In order to select a record area you need one of the following:
 
+* [slop](https://github.com/naelstrof/slop) — Recommended
 * [xrectsel](https://github.com/lolilolicon/xrectsel)
-* [slop](https://github.com/naelstrof/slop)
-
-> I recommend slop
 
 Most of these things should be able to be installed from your package manager
 
