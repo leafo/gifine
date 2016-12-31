@@ -39,14 +39,44 @@ file_size = (fname) ->
   size = res\match "^[^%s]+"
   size
 
+detect_command = (command) ->
+  "" != command_read { "which", command }
+
 snap_frames_rect = (framerate, callback) ->
-  out = command_read { "xrectsel" }
+  local x,y,w,h
 
-  w, h, x, y = unpack [tonumber i for i in out\gmatch "%d+"]
+  if detect_command "slop"
+    out = command_read {
+      "slop"
+      "--nodecorations"
+      "-f", "%x %y %w %h %c"
+    }
 
-  return unless w and h and x and y
-  print "x: #{x}, #{y}, w: #{w}, h: #{h}"
-  return if w == 0 or h == 0
+    x, y, w, h, cancel = out\match "(%d+) (%d+) (%d+) (%d+) (%S+)"
+
+    x = tonumber x
+    y = tonumber y
+    w = tonumber w
+    h = tonumber h
+
+    if cancel == "true"
+      x = 0
+      y = 0
+      w = 0
+      h = 0
+
+  else if detect_command "xrectsel"
+    out = command_read { "xrectsel" }
+
+    w, h, x, y = unpack [tonumber i for i in out\gmatch "%d+"]
+
+    return unless w and h and x and y
+  else
+    return nil, "missing command"
+
+  return nil, "canceled selection" if w == 0 or h == 0 or x == nil
+
+  print "Recording with x: #{x}, #{y}, w: #{w}, h: #{h}"
 
   dir = "#{GLib.get_tmp_dir!}/#{random_name!}"
   print "Working in dir", dir

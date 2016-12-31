@@ -58,27 +58,60 @@ file_size = function(fname)
   local size = res:match("^[^%s]+")
   return size
 end
+local detect_command
+detect_command = function(command)
+  return "" ~= command_read({
+    "which",
+    command
+  })
+end
 local snap_frames_rect
 snap_frames_rect = function(framerate, callback)
-  local out = command_read({
-    "xrectsel"
-  })
-  local w, h, x, y = unpack((function()
-    local _accum_0 = { }
-    local _len_0 = 1
-    for i in out:gmatch("%d+") do
-      _accum_0[_len_0] = tonumber(i)
-      _len_0 = _len_0 + 1
+  local x, y, w, h
+  if detect_command("slop") then
+    local out = command_read({
+      "slop",
+      "--nodecorations",
+      "-f",
+      "%x %y %w %h %c"
+    })
+    local cancel
+    x, y, w, h, cancel = out:match("(%d+) (%d+) (%d+) (%d+) (%S+)")
+    x = tonumber(x)
+    y = tonumber(y)
+    w = tonumber(w)
+    h = tonumber(h)
+    if cancel == "true" then
+      x = 0
+      y = 0
+      w = 0
+      h = 0
     end
-    return _accum_0
-  end)())
-  if not (w and h and x and y) then
-    return 
+  else
+    if detect_command("xrectsel") then
+      local out = command_read({
+        "xrectsel"
+      })
+      w, h, x, y = unpack((function()
+        local _accum_0 = { }
+        local _len_0 = 1
+        for i in out:gmatch("%d+") do
+          _accum_0[_len_0] = tonumber(i)
+          _len_0 = _len_0 + 1
+        end
+        return _accum_0
+      end)())
+      if not (w and h and x and y) then
+        return 
+      end
+    else
+      return nil, "missing command"
+    end
   end
-  print("x: " .. tostring(x) .. ", " .. tostring(y) .. ", w: " .. tostring(w) .. ", h: " .. tostring(h))
-  if w == 0 or h == 0 then
-    return 
+  if w == 0 or h == 0 or x == nil then
+    return nil, "canceled selection"
   end
+  print("Recording with x: " .. tostring(x) .. ", " .. tostring(y) .. ", w: " .. tostring(w) .. ", h: " .. tostring(h))
   local dir = tostring(GLib.get_tmp_dir()) .. "/" .. tostring(random_name())
   print("Working in dir", dir)
   command({
