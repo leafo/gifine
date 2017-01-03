@@ -118,11 +118,15 @@ snap_frames_rect = function(framerate, callback)
     "mkdir",
     dir
   })
+  local display = os.getenv("DISPLAY")
+  if not display or display == "" then
+    display = ":0"
+  end
   local ffmpeg_process = Gio.Subprocess({
     argv = {
       "/bin/bash",
       "-c",
-      "cd " .. tostring(dir) .. " && ffmpeg -f x11grab -r '" .. tostring(framerate) .. "' -s '" .. tostring(w) .. "x" .. tostring(h) .. "' -i ':0.0+" .. tostring(x) .. "," .. tostring(y) .. "' %09d.png"
+      "cd " .. tostring(dir) .. " && ffmpeg -f x11grab -r '" .. tostring(framerate) .. "' -s '" .. tostring(w) .. "x" .. tostring(h) .. "' -i '" .. tostring(display) .. "+" .. tostring(x) .. "," .. tostring(y) .. "' %09d.png"
     },
     flags = {
       "STDIN_PIPE"

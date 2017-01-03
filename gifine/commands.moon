@@ -82,11 +82,16 @@ snap_frames_rect = (framerate, callback) ->
   print "Working in dir", dir
   command { "mkdir", dir }
 
+  display = os.getenv "DISPLAY"
+
+  if not display or display == ""
+    display = ":0"
+
   ffmpeg_process  = Gio.Subprocess {
     argv: {
       "/bin/bash"
       "-c"
-      "cd #{dir} && ffmpeg -f x11grab -r '#{framerate}' -s '#{w}x#{h}' -i ':0.0+#{x},#{y}' %09d.png"
+      "cd #{dir} && ffmpeg -f x11grab -r '#{framerate}' -s '#{w}x#{h}' -i '#{display}+#{x},#{y}' %09d.png"
     }
     flags: {"STDIN_PIPE"}
   }
