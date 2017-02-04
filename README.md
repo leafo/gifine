@@ -34,6 +34,47 @@ button on the initial screen.
 
 Run the command `gifine` to use.
 
+## Installation on Ubuntu 16.04 LTS
+
+This has been tested on a fresh install of Ubuntu 16.04 LTS.
+
+Install git:
+
+    $ sudo apt install git
+    
+Next, install all of the `gifine`'s dependencies and sub-dependencies:
+
+    $ sudo apt install -y \
+    ffmpeg \
+    graphicsmagick \
+	gifsicle \
+	luarocks \
+	libxext-dev \
+	libimlib2-dev \
+	mesa-utils \
+	libxrender-dev \
+	glew-utils \
+	libglm-dev \
+	cmake \
+	compiz \
+	gengetopt \
+	libglu1-mesa-dev \
+	libglew-dev \
+	libxrandr-dev \
+	libgirepository1.0-dev
+    
+Install `slop` using the instructions in the `slop` [README.md][slopread] file.
+
+Install LGI:
+
+	$ sudo luarocks install lgi
+
+Install `gifine`.
+
+	$ sudo luarocks install --server=http://luarocks.org/dev gifine
+
+[slopread]:https://github.com/naelstrof/slop
+
 ## Demo
 
 [![Gifine demo](https://img.youtube.com/vi/FYSoAt3EZUE/0.jpg)](https://www.youtube.com/watch?v=FYSoAt3EZUE)
