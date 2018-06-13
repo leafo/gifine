@@ -204,9 +204,11 @@ make_mp4 = function(frames, opts)
       "-vcodec",
       "h264",
       "-vf",
-      "scale=trunc(in_w/2)*2:trunc(in_h/2)*2",
+      "crop=trunc(in_w/2)*2:trunc(in_h/2)*2",
       "-pix_fmt",
-      "yuv420p",
+      "yuvj420p",
+      "-crf",
+      "18",
       out_name
     },
     flags = {

@@ -157,8 +157,9 @@ make_mp4 = (frames, opts={}) ->
       "-i", "-"
 
       "-vcodec", "h264"
-      "-vf", "scale=trunc(in_w/2)*2:trunc(in_h/2)*2"
-      "-pix_fmt", "yuv420p"
+      "-vf", "crop=trunc(in_w/2)*2:trunc(in_h/2)*2"
+      "-pix_fmt", "yuvj420p"
+      "-crf", "18"
       out_name
     }
     flags: {"STDIN_PIPE"}
