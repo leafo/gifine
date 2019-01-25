@@ -173,13 +173,22 @@ do
             return Gtk.main_quit()
           end
         end,
-        Gtk.VBox({
-          Gtk.VBox({
+        Gtk.Box({
+          orientation = "VERTICAL",
+          Gtk.Box({
+            orientation = "VERTICAL",
             spacing = 4,
             border_width = 8,
-            Gtk.Image({
-              id = "current_image",
-              expand = true
+            expand = true,
+            Gtk.ScrolledWindow({
+              expand = true,
+              min_content_height = 400,
+              min_content_width = 400,
+              Gtk.Viewport({
+                Gtk.Image({
+                  id = "current_image"
+                })
+              })
             }),
             self:create_scrubber(),
             self:create_frame_tools(),
@@ -195,6 +204,7 @@ do
     create_video_export = function(self)
       return Gtk.Frame({
         label = "Encode video",
+        expand = false,
         Gtk.HBox({
           spacing = 4,
           border_width = 8,
@@ -226,7 +236,8 @@ do
               end)()
             end
           }),
-          Gtk.VBox({
+          Gtk.Box({
+            orientation = "VERTICAL",
             spacing = 2,
             Gtk.SpinButton({
               id = "framerate_input",
@@ -243,7 +254,8 @@ do
               label = "Framerate"
             })
           }),
-          Gtk.VBox({
+          Gtk.Box({
+            orientation = "VERTICAL",
             spacing = 2,
             Gtk.SpinButton({
               id = "loop_input",
@@ -266,6 +278,7 @@ do
     create_gif_export = function(self)
       return Gtk.Frame({
         label = "Encode GIF",
+        expand = false,
         Gtk.HBox({
           spacing = 4,
           border_width = 8,
@@ -295,7 +308,8 @@ do
               end)()
             end
           }),
-          Gtk.VBox({
+          Gtk.Box({
+            orientation = "VERTICAL",
             spacing = 2,
             Gtk.SpinButton({
               id = "delay_input",
@@ -318,7 +332,6 @@ do
     create_scrubber = function(self)
       return Gtk.HScale({
         id = "image_scroller",
-        expand = true,
         round_digits = 0,
         digits = 0,
         on_value_changed = function(scroller)

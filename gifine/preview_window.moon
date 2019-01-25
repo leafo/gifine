@@ -93,14 +93,24 @@ class PreviewWindow
         if e.string\byte! == 27
           return Gtk.main_quit!
 
-      Gtk.VBox {
-        Gtk.VBox {
+      Gtk.Box {
+        orientation: "VERTICAL"
+        Gtk.Box {
+          orientation: "VERTICAL"
           spacing: 4
           border_width: 8
+          expand: true
 
-          Gtk.Image {
-            id: "current_image"
+          Gtk.ScrolledWindow {
             expand: true
+            min_content_height: 400
+            min_content_width: 400
+
+            Gtk.Viewport {
+              Gtk.Image {
+                id: "current_image"
+              }
+            }
           }
 
           @create_scrubber!
@@ -119,6 +129,7 @@ class PreviewWindow
   create_video_export: =>
     Gtk.Frame {
       label: "Encode video"
+      expand: false
 
       Gtk.HBox {
         spacing: 4
@@ -153,8 +164,10 @@ class PreviewWindow
 
         }
 
-        Gtk.VBox {
+        Gtk.Box {
+          orientation: "VERTICAL"
           spacing: 2
+
           Gtk.SpinButton {
             id: "framerate_input"
             expand: true
@@ -171,8 +184,10 @@ class PreviewWindow
           }
         }
 
-        Gtk.VBox {
+        Gtk.Box {
+          orientation: "VERTICAL"
           spacing: 2
+
           Gtk.SpinButton {
             id: "loop_input"
             expand: true
@@ -197,6 +212,7 @@ class PreviewWindow
   create_gif_export: =>
     Gtk.Frame {
       label: "Encode GIF"
+      expand: false
 
       Gtk.HBox {
         spacing: 4
@@ -228,8 +244,10 @@ class PreviewWindow
             )!
         }
 
-        Gtk.VBox {
+        Gtk.Box {
+          orientation: "VERTICAL"
           spacing: 2
+
           Gtk.SpinButton {
             id: "delay_input"
             expand: true
@@ -252,7 +270,6 @@ class PreviewWindow
   create_scrubber: =>
     Gtk.HScale {
       id: "image_scroller"
-      expand: true
 
       round_digits: 0
       digits: 0
