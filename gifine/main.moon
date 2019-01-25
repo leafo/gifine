@@ -1,8 +1,13 @@
 
 import Gtk from require "lgi"
 
-import LoadWindow from require "gifine.load_window"
+if path = arg and unpack arg
+  import PreviewWindow from require "gifine.preview_window"
+  preview = PreviewWindow!
+  preview\set_frames_from_dir path
+else
+  import LoadWindow from require "gifine.load_window"
+  LoadWindow!
 
-LoadWindow!
 
 Gtk.main!
