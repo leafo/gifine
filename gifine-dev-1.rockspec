@@ -2,7 +2,7 @@ package = "gifine"
 version = "dev-1"
 
 source = {
-  url = "git+https:// github.com/leafo/gifine.git"
+  url = "git+https://github.com/leafo/gifine.git"
 }
 
 description = {
