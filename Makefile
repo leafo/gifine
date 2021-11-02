@@ -4,7 +4,7 @@ compile: bin/gifine
 	moonc gifine
 
 local: compile
-	luarocks make --local gifine-dev-1.rockspec
+	luarocks --lua-version=5.1 make --local gifine-dev-1.rockspec
 
 debug:
 	GTK_DEBUG=interactive moon bin/gifine.moon
