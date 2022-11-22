@@ -1,5 +1,5 @@
 local Gtk
-Gtk = require("lgi").Gtk
+Gtk = require("gifine.gtk").Gtk
 local LoadWindow
 do
   local _class_0

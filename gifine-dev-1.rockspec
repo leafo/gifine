@@ -21,6 +21,7 @@ build = {
   type = "builtin",
   modules = {
     ["gifine.commands"] = "gifine/commands.lua",
+    ["gifine.gtk"] = "gifine/gtk.lua",
     ["gifine.load_window"] = "gifine/load_window.lua",
     ["gifine.main"] = "gifine/main.lua",
     ["gifine.preview_window"] = "gifine/preview_window.lua",

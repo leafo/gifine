@@ -1,5 +1,5 @@
 
-import Gtk from require "lgi"
+import Gtk from require "gifine.gtk"
 
 if path = arg and unpack arg
   import PreviewWindow from require "gifine.preview_window"

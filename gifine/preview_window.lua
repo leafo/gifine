@@ -1,5 +1,5 @@
 local Gtk
-Gtk = require("lgi").Gtk
+Gtk = require("gifine.gtk").Gtk
 local async_command
 async_command = require("gifine.commands").async_command
 local PreviewWindow

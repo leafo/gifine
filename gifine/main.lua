@@ -1,5 +1,5 @@
 local Gtk
-Gtk = require("lgi").Gtk
+Gtk = require("gifine.gtk").Gtk
 do
   local path = arg and unpack(arg)
   if path then

@@ -1,4 +1,4 @@
-import Gtk from require "lgi"
+import Gtk from require "gifine.gtk"
 
 import async_command from require "gifine.commands"
 

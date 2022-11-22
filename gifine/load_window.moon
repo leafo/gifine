@@ -1,5 +1,5 @@
 
-import Gtk from require "lgi"
+import Gtk from require "gifine.gtk"
 
 class LoadWindow
   record_text: {
