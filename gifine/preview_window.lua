@@ -215,7 +215,7 @@ do
               Gio = require("lgi").Gio
               local make_mp4
               make_mp4 = require("gifine.commands").make_mp4
-              local save_to = self:choose_save_file()
+              local save_to = self:choose_save_file("Save to MP4")
               if not (save_to) then
                 return 
               end
@@ -289,7 +289,7 @@ do
               Gio = require("lgi").Gio
               local make_gif
               make_gif = require("gifine.commands").make_gif
-              local save_to = self:choose_save_file()
+              local save_to = self:choose_save_file("Save to GIF")
               if not (save_to) then
                 return 
               end
@@ -383,10 +383,10 @@ do
         })
       })
     end,
-    choose_save_file = function(self)
+    choose_save_file = function(self, title)
       local save_to
       local dialog = Gtk.FileChooserDialog({
-        title = "Save to GIF",
+        title = title,
         action = Gtk.FileChooserAction.SAVE,
         transient_for = self.window,
         buttons = {

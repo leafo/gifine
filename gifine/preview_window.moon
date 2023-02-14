@@ -141,7 +141,7 @@ class PreviewWindow
             import Gio from require "lgi"
             import make_mp4 from require "gifine.commands"
 
-            save_to = @choose_save_file!
+            save_to = @choose_save_file "Save to MP4"
             return unless save_to
 
             btn.sensitive = false
@@ -224,7 +224,7 @@ class PreviewWindow
             import Gio from require "lgi"
             import make_gif from require "gifine.commands"
 
-            save_to = @choose_save_file!
+            save_to = @choose_save_file "Save to GIF"
             return unless save_to
 
             btn.sensitive = false
@@ -317,11 +317,11 @@ class PreviewWindow
       }
     }
 
-  choose_save_file: =>
+  choose_save_file: (title) =>
     local save_to
 
     dialog = Gtk.FileChooserDialog {
-      title: "Save to GIF"
+      :title
       action: Gtk.FileChooserAction.SAVE
       transient_for: @window
       buttons: {
