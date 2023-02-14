@@ -4,7 +4,7 @@ import Gtk from require "gifine.gtk"
 class LoadWindow
   record_text: {
     recording: "Stop recording"
-    standby: "Record rectange"
+    standby: "Record rectangle"
   }
 
   new: =>

@@ -6,7 +6,7 @@ do
   local _base_0 = {
     record_text = {
       recording = "Stop recording",
-      standby = "Record rectange"
+      standby = "Record rectangle"
     },
     open_preview_from_dir = function(self, dir)
       local PreviewWindow
