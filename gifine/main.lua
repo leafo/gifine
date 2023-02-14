@@ -1,3 +1,4 @@
+local unpack = table.unpack or unpack
 local Gtk
 Gtk = require("gifine.gtk").Gtk
 do

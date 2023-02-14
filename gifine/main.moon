@@ -1,4 +1,6 @@
 
+unpack = table.unpack or unpack
+
 import Gtk from require "gifine.gtk"
 
 if path = arg and unpack arg

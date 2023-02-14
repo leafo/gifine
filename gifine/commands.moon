@@ -1,5 +1,7 @@
 import Gio, GLib from require "lgi"
 
+unpack = table.unpack or unpack
+
 random_name = ->
   chars = for i=1,10
     GLib.random_int_range "az"\byte 1,2

@@ -3,6 +3,7 @@ do
   local _obj_0 = require("lgi")
   Gio, GLib = _obj_0.Gio, _obj_0.GLib
 end
+local unpack = table.unpack or unpack
 local random_name
 random_name = function()
   local chars
