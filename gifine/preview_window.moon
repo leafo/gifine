@@ -114,9 +114,12 @@ class PreviewWindow
           }
 
           @create_scrubber!
+
+          -- export tools
           @create_frame_tools!
           @create_gif_export!
           @create_video_export!
+          @create_webp_export!
         }
 
         Gtk.Statusbar {
@@ -264,6 +267,40 @@ class PreviewWindow
           }
         }
 
+      }
+    }
+
+  create_webp_export: =>
+    Gtk.Frame {
+      label: "Encode WebP"
+      expand: false
+
+      Gtk.HBox {
+        spacing: 4
+        border_width: 8
+
+        Gtk.Button {
+          label: "Save WebP..."
+          on_clicked: (btn) ->
+            import Gio from require "lgi"
+            import make_webp from require "gifine.commands"
+
+            save_to = @choose_save_file "Save to WebP"
+            return unless save_to
+
+            btn.sensitive = false
+
+            Gio.Async.start(->
+              out_fname, size = make_webp @current_frames, {
+                fname: save_to
+                progress_fn: (step) ->
+                  @set_status "Working: #{step}"
+              }
+
+              @set_status "Wrote WebP to #{out_fname} (#{size})"
+              btn.sensitive = true
+            )!
+        }
       }
     }
 

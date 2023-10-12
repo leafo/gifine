@@ -51,6 +51,8 @@ snap_frames_rect = (framerate, callback) ->
     out = command_read {
       "slop"
       "--nodecorations"
+      "-b", "4"
+      "-c", "0.3,0.3,0.8,1"
       "-f", "%x %y %w %h %c"
     }
 
@@ -168,6 +170,34 @@ pipe_frames = (process, frames, loop=1) ->
   pipe\async_close!
   process\async_wait_check!
 
+make_webp = (frames, opts={}) ->
+  framerate = opts.framerate or 60
+  -- loop = opts.loop or 1
+  out_name = opts.fname or "#{GLib.get_tmp_dir!}/#{random_name!}.webp"
+  progress_fn = opts.progress_fn or ->
+
+  process = Gio.Subprocess {
+    argv: {
+      "ffmpeg"
+      "-y"
+      "-f", "image2pipe"
+      "-vcodec", "png"
+      "-i", "-"
+
+      "-r", "#{framerate}"
+      "-c:v", "libwebp"
+      "-loop", "0"
+      out_name
+    }
+    flags: {"STDIN_PIPE"}
+  }
+
+  progress_fn "piping"
+  pipe_frames process, frames
+
+  size = file_size out_name
+  out_name, size
+
 make_mp4 = (frames, opts={}) ->
   framerate = opts.framerate or 60
   loop = opts.loop or 1
@@ -202,4 +232,4 @@ make_mp4 = (frames, opts={}) ->
 async_command = (argv, callback) ->
   Gio.Async.start(-> callback command_read argv)!
 
-{:async_command, :snap_frames_rect, :make_gif, :make_mp4}
+{:async_command, :snap_frames_rect, :make_gif, :make_mp4, :make_webp}

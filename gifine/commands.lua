@@ -73,6 +73,10 @@ snap_frames_rect = function(framerate, callback)
     local out = command_read({
       "slop",
       "--nodecorations",
+      "-b",
+      "4",
+      "-c",
+      "0.3,0.3,0.8,1",
       "-f",
       "%x %y %w %h %c"
     })
@@ -211,6 +215,41 @@ pipe_frames = function(process, frames, loop)
   pipe:async_close()
   return process:async_wait_check()
 end
+local make_webp
+make_webp = function(frames, opts)
+  if opts == nil then
+    opts = { }
+  end
+  local framerate = opts.framerate or 60
+  local out_name = opts.fname or tostring(GLib.get_tmp_dir()) .. "/" .. tostring(random_name()) .. ".webp"
+  local progress_fn = opts.progress_fn or function() end
+  local process = Gio.Subprocess({
+    argv = {
+      "ffmpeg",
+      "-y",
+      "-f",
+      "image2pipe",
+      "-vcodec",
+      "png",
+      "-i",
+      "-",
+      "-r",
+      tostring(framerate),
+      "-c:v",
+      "libwebp",
+      "-loop",
+      "0",
+      out_name
+    },
+    flags = {
+      "STDIN_PIPE"
+    }
+  })
+  progress_fn("piping")
+  pipe_frames(process, frames)
+  local size = file_size(out_name)
+  return out_name, size
+end
 local make_mp4
 make_mp4 = function(frames, opts)
   if opts == nil then
@@ -261,5 +300,6 @@ return {
   async_command = async_command,
   snap_frames_rect = snap_frames_rect,
   make_gif = make_gif,
-  make_mp4 = make_mp4
+  make_mp4 = make_mp4,
+  make_webp = make_webp
 }

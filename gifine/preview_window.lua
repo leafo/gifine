@@ -193,7 +193,8 @@ do
             self:create_scrubber(),
             self:create_frame_tools(),
             self:create_gif_export(),
-            self:create_video_export()
+            self:create_video_export(),
+            self:create_webp_export()
           }),
           Gtk.Statusbar({
             id = "statusbar"
@@ -325,6 +326,40 @@ do
             Gtk.Label({
               label = "Delay"
             })
+          })
+        })
+      })
+    end,
+    create_webp_export = function(self)
+      return Gtk.Frame({
+        label = "Encode WebP",
+        expand = false,
+        Gtk.HBox({
+          spacing = 4,
+          border_width = 8,
+          Gtk.Button({
+            label = "Save WebP...",
+            on_clicked = function(btn)
+              local Gio
+              Gio = require("lgi").Gio
+              local make_webp
+              make_webp = require("gifine.commands").make_webp
+              local save_to = self:choose_save_file("Save to WebP")
+              if not (save_to) then
+                return 
+              end
+              btn.sensitive = false
+              return Gio.Async.start(function()
+                local out_fname, size = make_webp(self.current_frames, {
+                  fname = save_to,
+                  progress_fn = function(step)
+                    return self:set_status("Working: " .. tostring(step))
+                  end
+                })
+                self:set_status("Wrote WebP to " .. tostring(out_fname) .. " (" .. tostring(size) .. ")")
+                btn.sensitive = true
+              end)()
+            end
           })
         })
       })
