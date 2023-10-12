@@ -89,7 +89,7 @@ snap_frames_rect = (framerate, callback) ->
   if not display or display == ""
     display = ":0"
 
-  ffmpeg_process  = Gio.Subprocess {
+  ffmpeg_process = Gio.Subprocess {
     argv: {
       "/bin/bash"
       "-c"
@@ -143,31 +143,9 @@ make_gif = (frames, opts={}) ->
   size = file_size out_name
   out_name, size
 
-make_mp4 = (frames, opts={}) ->
-  framerate = opts.framerate or 60
-  loop = opts.loop or 1
-  out_name = opts.fname or "#{GLib.get_tmp_dir!}/#{random_name!}.mp4"
-  progress_fn = opts.progress_fn or ->
-
-  process  = Gio.Subprocess {
-    argv: {
-      "ffmpeg"
-      "-y"
-      "-f", "image2pipe"
-      "-r", "#{framerate}"
-      "-vcodec", "png"
-      "-i", "-"
-
-      "-vcodec", "h264"
-      "-vf", "crop=trunc(in_w/2)*2:trunc(in_h/2)*2"
-      "-pix_fmt", "yuvj420p"
-      "-crf", "18"
-      out_name
-    }
-    flags: {"STDIN_PIPE"}
-  }
-
-  progress_fn "piping"
+-- Send all frames to the process stdin pipe, repeating loop times
+-- frames: is an array of file paths
+pipe_frames = (process, frames, loop=1) ->
   pipe = process\get_stdin_pipe!
 
   for i=1,loop
@@ -187,9 +165,36 @@ make_mp4 = (frames, opts={}) ->
           bytes = bytes\new_from_bytes wrote, #bytes - wrote
 
 
-  print "closing pipe"
   pipe\async_close!
   process\async_wait_check!
+
+make_mp4 = (frames, opts={}) ->
+  framerate = opts.framerate or 60
+  loop = opts.loop or 1
+  out_name = opts.fname or "#{GLib.get_tmp_dir!}/#{random_name!}.mp4"
+  progress_fn = opts.progress_fn or ->
+
+  process = Gio.Subprocess {
+    argv: {
+      "ffmpeg"
+      "-y"
+      "-f", "image2pipe"
+      "-r", "#{framerate}"
+      "-vcodec", "png"
+      "-i", "-"
+
+      "-vcodec", "h264"
+      "-vf", "crop=trunc(in_w/2)*2:trunc(in_h/2)*2"
+      "-pix_fmt", "yuvj420p"
+      "-crf", "18"
+      out_name
+    }
+    flags: {"STDIN_PIPE"}
+  }
+
+  progress_fn "piping"
+  pipe_frames process, frames, loop
+
   size = file_size out_name
   out_name, size
 

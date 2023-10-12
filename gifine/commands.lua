@@ -181,6 +181,36 @@ make_gif = function(frames, opts)
   local size = file_size(out_name)
   return out_name, size
 end
+local pipe_frames
+pipe_frames = function(process, frames, loop)
+  if loop == nil then
+    loop = 1
+  end
+  local pipe = process:get_stdin_pipe()
+  for i = 1, loop do
+    for _index_0 = 1, #frames do
+      local frame = frames[_index_0]
+      print("Reading", frame)
+      local file = Gio.File.new_for_path(frame)
+      local stream = assert(file:async_read())
+      while true do
+        local bytes = assert(stream:async_read_bytes(1024 * 10))
+        if not (bytes and #bytes > 0) then
+          break
+        end
+        while true do
+          local wrote = pipe:async_write_bytes(bytes)
+          if wrote == #bytes then
+            break
+          end
+          bytes = bytes:new_from_bytes(wrote, #bytes - wrote)
+        end
+      end
+    end
+  end
+  pipe:async_close()
+  return process:async_wait_check()
+end
 local make_mp4
 make_mp4 = function(frames, opts)
   if opts == nil then
@@ -217,31 +247,7 @@ make_mp4 = function(frames, opts)
     }
   })
   progress_fn("piping")
-  local pipe = process:get_stdin_pipe()
-  for i = 1, loop do
-    for _index_0 = 1, #frames do
-      local frame = frames[_index_0]
-      print("Reading", frame)
-      local file = Gio.File.new_for_path(frame)
-      local stream = assert(file:async_read())
-      while true do
-        local bytes = assert(stream:async_read_bytes(1024 * 10))
-        if not (bytes and #bytes > 0) then
-          break
-        end
-        while true do
-          local wrote = pipe:async_write_bytes(bytes)
-          if wrote == #bytes then
-            break
-          end
-          bytes = bytes:new_from_bytes(wrote, #bytes - wrote)
-        end
-      end
-    end
-  end
-  print("closing pipe")
-  pipe:async_close()
-  process:async_wait_check()
+  pipe_frames(process, frames, loop)
   local size = file_size(out_name)
   return out_name, size
 end
